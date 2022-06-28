@@ -1,0 +1,135 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    width: 100vw;
+    background: #eaeaea;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+table[data-table] {
+    width: 80%;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.75rem;
+}
+
+table[data-table] td,
+table[data-table] th,
+table[data-table].table-bordered {
+    border-color: #e0e0e0;
+}
+
+table[data-table].table-bordered {
+    border: 1px solid #e9ecef;
+}
+
+table[data-table] > tbody > tr > td, 
+table[data-table] > tbody > tr > th, 
+table[data-table] > tfoot > tr > td, 
+table[data-table] > tfoot > tr > th, 
+table[data-table] > thead > tr > td, 
+table[data-table] > thead > tr > th,
+table[data-table].table-bordered {
+	border-color: #e0e0e0;
+}
+
+table[data-table].table-striped tbody tr.odd {
+    background-color: #eee;
+}
+table[data-table].table-striped tbody tr.even {
+    background-color: #fff;
+}
+table[data-table].table-hover tbody tr.odd:hover,
+table[data-table].table-hover tbody tr.even:hover {
+	background: #efeff4;
+}
+table[data-table] tbody tr td {
+    padding: .25em;
+}
+
+table[data-table] tfoot tr td {
+    padding: .125em .5em;
+}
+
+table[data-table] tfoot tr td .page-info {
+    
+}
+
+table[data-table] tfoot tr td .pages-container {
+    display: flex;
+    flex-direction: row;
+}
+
+table[data-table] tfoot tr td .pages-container * {
+    background: transparent;
+    color: #000;
+    user-select: none;
+}
+
+table[data-table] tfoot tr td .pages-container .page_btn {
+    padding: .25rem .5rem;
+    cursor: pointer;
+}
+table[data-table] tfoot tr td .pages-container .page_btn.active,
+table[data-table] tfoot tr td .pages-container .page_btn.active {
+    border: 1px solid #8A8A8F;
+}
+table[data-table] tfoot tr td .pages-container .page_btn,
+table[data-table] tfoot tr td .pages-container .page_btn,
+table[data-table] tfoot tr td .pages-container .page_btn_next,
+table[data-table] tfoot tr td .pages-container .page_btn_prev {
+    border-radius: .5em;
+}
+table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
+table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
+table[data-table] tfoot tr td .pages-container .page_btn_next,
+table[data-table] tfoot tr td .pages-container .page_btn_prev {
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+}
+table[data-table] tfoot tr td .pages-container .page_btn:not(.active):hover,
+table[data-table] tfoot tr td .pages-container .page_btn:not(.active):active,
+table[data-table] tfoot tr td .pages-container .page_btn_next:hover,
+table[data-table] tfoot tr td .pages-container .page_btn_prev:hover {
+    border-color: #8A8A8F;
+}
+table[data-table] tfoot tr td .pages-container .page_btn_next,
+table[data-table] tfoot tr td .pages-container .page_btn_prev {
+    padding: .3rem .5rem;
+    font-size: .75em;
+}
+table[data-table] tfoot tr td .pages-container .page_btn_next.disabled,
+table[data-table] tfoot tr td .pages-container .page_btn_prev.disabled {
+    border-color: transparent;
+    background: transparent;
+    color: #8A8A8F;
+    pointer-events: none;
+}
+table[data-table] tfoot tr td .pages-container .page_btn_next:not(.disabled),
+table[data-table] tfoot tr td .pages-container .page_btn_prev:not(.disabled) {
+    cursor: pointer;
+}
+
+table[data-table] thead tr th {
+    background: #fff;
+    padding: .25em;
+}
+.table > tbody > tr > td,
+.table > tbody > tr > th,
+.table > tfoot > tr > td,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > thead > tr > th,
+table[data-table].table-bordered {
+    border-color: #e0e0e0;
+}
