@@ -4,6 +4,7 @@ Usage:
 ```javascript
 const newDataTable = new DataTable({
     id: 'dataTableID',
+    dataFile: 'data-table.php',
     perPage: 5,
     sql_cols: [ 'cmod.cmodel_id', 'cmod.cmodel_name', 'cmake.cmake_name' ],
     sql_from: 'car_models as cmod',
