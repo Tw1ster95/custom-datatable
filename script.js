@@ -1,23 +1,48 @@
 class DataTable {
-    constructor({ id, dataFile = null, perPage = 20 }) {
+    constructor({
+        id,
+        dataFile = 'data-table.php',
+        sql_cols = [],
+        sql_from = '',
+        sql_join = '',
+        sql_where = '',
+        perPage = 20,
+        rowCreated = null,
+        initComplete = null,
+        error = null
+    }) {
         if(!id) return;
         this.table = document.getElementById(id);
         if(!this.table) return;
         this.table.setAttribute('data-table', '');
         this.perPage = perPage;
         this.dataFile = dataFile;
+        this.sql_cols = sql_cols;
+        this.sql_from = sql_from;
+        this.sql_join = sql_join;
+        this.sql_where = sql_where;
+        this.initComplete = initComplete;
+        this.error = error;
+        this.rowCreated = rowCreated;
         this.page = 0;
-        this.sort = null;
+        this.orderby = 0;
+        this.order_direction = 'ASC';
         this.columns_count = this.table.querySelectorAll('thead th')?.length;
         if(!this.columns_count) return;
         if(this.dataFile) this.getDataFromFile();
+        this.addHeaderSortListeners();
     }
 
     getDataFromFile = async () => {
         const fd = new FormData();
         fd.append('page', this.page);
         fd.append('limit', this.perPage);
-        fd.append('sort', this.sort);
+        fd.append('orderby', this.orderby);
+        fd.append('order_direction', this.order_direction);
+        if(this.sql_cols) this.sql_cols.forEach(c => fd.append('sql_cols[]', c));
+        fd.append('sql_from', this.sql_from);
+        fd.append('sql_join', this.sql_join);
+        fd.append('sql_where', this.sql_where);
 
         const response = await fetch(this.dataFile, {
             method: 'POST',
@@ -29,9 +54,14 @@ class DataTable {
             this.totalRows = json[0].total_rows;
             this.replaceRows(json[0].data);
             this.addPagination();
+            if(typeof(this.initComplete) == 'function') this.initComplete({
+                data: json[0].data,
+                total_rows: json[0].total_rows,
+                table: this.table
+            });
         }
         catch(err) {
-            console.error(`[DataTable] Bad data object parsed from '${this.dataFile}' for table with ID '${this.table.getAttribute('id')}'`);
+            if(typeof(this.error) == 'function') this.error(`[DataTable] Bad data object parsed from '${this.dataFile}' for table with ID '${this.table.getAttribute('id')}'.`);
         }
     }
 
@@ -52,6 +82,7 @@ class DataTable {
                 }
             }
             tbody.append(tr);
+            if(typeof(this.rowCreated) == 'function') this.rowCreated(tr, data[a]);
         }
     }
 
@@ -155,5 +186,22 @@ class DataTable {
             this.page++;
             this.getDataFromFile();
         }
+    }
+
+    addHeaderSortListeners = () => {
+        const thElements = this.table.querySelectorAll('thead th');
+        for(let i = 0; i < thElements.length; i++) {
+            thElements[i].addEventListener('click', this.sortHeader);
+        }
+    }
+
+    sortHeader = (e) => {
+        const index = Array.prototype.indexOf.call(e.currentTarget.parentNode.children, e.currentTarget);
+        if(this.orderby == index) this.order_direction = (this.order_direction == 'ASC') ? 'DESC' : 'ASC';
+        else {
+            this.orderby = index;
+            this.order_direction = 'ASC';
+        }
+        this.getDataFromFile();
     }
 }

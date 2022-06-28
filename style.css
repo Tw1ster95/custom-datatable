@@ -123,6 +123,7 @@ table[data-table] tfoot tr td .pages-container .page_btn_prev:not(.disabled) {
 table[data-table] thead tr th {
     background: #fff;
     padding: .25em;
+    cursor: pointer;
 }
 .table > tbody > tr > td,
 .table > tbody > tr > th,

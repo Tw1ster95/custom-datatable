@@ -2,20 +2,25 @@
     $conn = new mysqli('localhost','root', '', 'dbname');
     if(!$conn) exit;
 
+    $qColumns = [];
+    foreach($_POST['sql_cols'] as $col) {
+        array_push($qColumns, $col);
+    }
+    $qFrom = $conn->real_escape_string($_POST['sql_from'] ?? '');
+    $qJoin = $conn->real_escape_string($_POST['sql_join'] ?? '');
+    $qWhere = $conn->real_escape_string($_POST['sql_where'] ?? '');
     $page = $conn->real_escape_string($_POST['page'] ?? 0);
     $limit = $conn->real_escape_string($_POST['limit'] ?? 20);
-    $sort = $conn->real_escape_string($_POST['sort'] ?? NULL);
+    $orderby = $conn->real_escape_string($_POST['orderby'] ?? 0);
+    $order_direction = $conn->real_escape_string($_POST['order_direction'] ?? 'ASC');
     $offset = $limit * $page;
 
-    $qColumns = [ "cmod.cmodel_id", "cmod.cmodel_name", "cmake.cmake_name" ];
-    $qFrom = "car_models as cmod";
-    $qJoin = "INNER JOIN car_makes as cmake ON cmake.cmake_id = cmod.cmodel_make_id";
-    $qWhere = "";
-    $qLimit = "LIMIT $offset, $limit;";
     $qSelect = implode(', ', $qColumns);
     $qCountRows = "(SELECT COUNT(*) FROM $qFrom $qWhere) as total_rows";
+    $qLimit = "LIMIT $offset, $limit;";
+    $qOrderBy = "ORDER BY {$qColumns[$orderby]} $order_direction";
 
-    $result = $conn->query("SELECT $qSelect, $qCountRows FROM $qFrom $qJoin $qWhere $qLimit");
+    $result = $conn->query("SELECT $qSelect, $qCountRows FROM $qFrom $qJoin $qWhere $qOrderBy $qLimit");
 
     $rData = $result->fetch_all(MYSQLI_BOTH);
 
