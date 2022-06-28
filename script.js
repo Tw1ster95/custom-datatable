@@ -7,9 +7,10 @@ class DataTable {
         sql_join = '',
         sql_where = '',
         perPage = 20,
-        rowCreated = null,
-        initComplete = null,
-        error = null
+        rowCreated = () => {},
+        colFormat = () => {},
+        initComplete = () => {},
+        error = () => {}
     }) {
         if(!id) return;
         this.table = document.getElementById(id);
@@ -24,6 +25,7 @@ class DataTable {
         this.initComplete = initComplete;
         this.error = error;
         this.rowCreated = rowCreated;
+        this.colFormat = colFormat;
         this.page = 0;
         this.orderby = 0;
         this.order_direction = 'ASC';
@@ -54,14 +56,14 @@ class DataTable {
             this.totalRows = json[0].total_rows;
             this.replaceRows(json[0].data);
             this.addPagination();
-            if(typeof(this.initComplete) == 'function') this.initComplete({
+            this.initComplete({
                 data: json[0].data,
                 total_rows: json[0].total_rows,
                 table: this.table
             });
         }
         catch(err) {
-            if(typeof(this.error) == 'function') this.error(`[DataTable] Bad data object parsed from '${this.dataFile}' for table with ID '${this.table.getAttribute('id')}'.`);
+            this.error(`[DataTable] Bad data object parsed from '${this.dataFile}' for table with ID '${this.table.getAttribute('id')}'.`);
         }
     }
 
@@ -70,19 +72,20 @@ class DataTable {
         const tbody = this.table.querySelector('tbody');
         if(!tbody) return;
         tbody.textContent = '';
-        let tr, td, i, a, cols = data[0].length;
+        let tr, td, i, a, cols = data[0].length, formated;
         for(a = 0; a < this.perPage; a++) {
             tr = document.createElement('tr');
             tr.classList.add((a % 2 == 0) ? 'even' : 'odd');
             if(a < data.length) {
                 for(i = 0; i < cols; i++) {
                     td = document.createElement('td');
-                    td.innerHTML = data[a][i];
+                    formated = this.colFormat(i, data[a]);
+                    td.innerHTML = (formated == undefined) ? data[a][i] : formated;
                     tr.append(td);
                 }
             }
             tbody.append(tr);
-            if(typeof(this.rowCreated) == 'function') this.rowCreated(tr, data[a]);
+            this.rowCreated(tr, data[a]);
         }
     }
 
