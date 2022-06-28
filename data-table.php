@@ -27,14 +27,8 @@
     $output = array();
     for($a = 0; $a < count($rData); $a++) {
         $row = array();
-        for($i = 0; $i < count($qColumns); $i++) {
-            if($qColumns[$i] == "expo_users_ID") {
-                array_push($row, "<div color='red'>{$rData[$a][$i]}</div>");
-            }
-            else {
-                array_push($row, $rData[$a][$i]);
-            }
-        }
+        for($i = 0; $i < count($qColumns); $i++)
+            array_push($row, $rData[$a][$i]);
         array_push($output, $row);
     }
 
