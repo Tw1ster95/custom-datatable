@@ -129,12 +129,12 @@ class DataTable {
             if(tooMany) {
                 if(this.tooManyUseInput) {
                     for(i = 0; i < this.totalPages; i++) {
-                        if(i == 7) {
+                        if(i == 6) {
                             input = document.createElement('input');
                             input.type = 'text';
                             input.addEventListener('change', this.pageNumberTypeEvent);
                             paginationConatiner.append(input);
-                            i = this.totalPages - 7;
+                            i = this.totalPages - 6;
                         }
                         div = document.createElement('div');
                         div.innerHTML = i+1;
@@ -205,12 +205,12 @@ class DataTable {
             if(tooMany) {
                 if(this.tooManyUseInput) {
                     for(i = 0; i < this.totalPages; i++) {
-                        if(i == 7) {
+                        if(i == 6) {
                             input = document.createElement('input');
                             input.type = 'text';
                             input.addEventListener('change', this.pageNumberTypeEvent);
                             prevBtnElement.before(input);
-                            i = this.totalPages - 7;
+                            i = this.totalPages - 6;
                         }
                         div = document.createElement('div');
                         div.innerHTML = i+1;
