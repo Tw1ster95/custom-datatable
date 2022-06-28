@@ -7,16 +7,18 @@ class DataTable {
         sql_join = '',
         sql_where = '',
         perPage = 20,
+        tooManyUseInput = false,
         rowCreated = () => {},
         colFormat = () => {},
         initComplete = () => {},
-        error = () => {}
+        error = (err) => { console.error(err) }
     }) {
         if(!id) return;
         this.table = document.getElementById(id);
         if(!this.table) return;
         this.table.setAttribute('data-table', '');
         this.perPage = perPage;
+        this.tooManyUseInput = tooManyUseInput;
         this.dataFile = dataFile;
         this.sql_cols = sql_cols;
         this.sql_from = sql_from;
@@ -63,7 +65,7 @@ class DataTable {
             });
         }
         catch(err) {
-            this.error(`[DataTable] Bad data object parsed from '${this.dataFile}' for table with ID '${this.table.getAttribute('id')}'.`);
+            this.error(err);
         }
     }
 
@@ -98,7 +100,7 @@ class DataTable {
         }
         else pagesCount = tfoot.querySelectorAll('tr td .pages-container')?.length || 0;
         this.totalPages = Math.floor(this.totalRows / this.perPage) + ((this.totalRows % this.perPage) > 0 ? 1 : 0);
-        let i, div, tr, td;
+        let i, div, tr, td, input;
         if(!pagesCount) {
             tr = document.createElement('tr');
             td = document.createElement('td');
@@ -123,13 +125,56 @@ class DataTable {
             this.prevBtn.classList.add('disabled');
             this.prevBtn.addEventListener('click', this.prevClickEvent);
             paginationConatiner.append(this.prevBtn);
-            for(i = 0; i < this.totalPages; i++) {
-                div = document.createElement('div');
-                div.innerHTML = i+1;
-                div.setAttribute('data-page', i);
-                div.classList.add('page_btn');
-                div.addEventListener('click', this.pageNumberClickEvent);
-                paginationConatiner.append(div);
+            const tooMany = (this.totalPages > 20);
+            if(tooMany) {
+                if(this.tooManyUseInput) {
+                    for(i = 0; i < this.totalPages; i++) {
+                        if(i == 7) {
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.addEventListener('change', this.pageNumberTypeEvent);
+                            paginationConatiner.append(input);
+                            i = this.totalPages - 7;
+                        }
+                        div = document.createElement('div');
+                        div.innerHTML = i+1;
+                        div.setAttribute('data-page', i);
+                        div.classList.add('page_btn');
+                        div.addEventListener('click', this.pageNumberClickEvent);
+                        paginationConatiner.append(div);
+                    }
+                }
+                else {
+                    let diff = 0;
+                    for(i = 0; i < this.totalPages; i++) {
+                        diff = this.page - i;
+                        if(i < 3 || i >= (this.totalPages - 3) || (diff < 2 && diff > -2)) {
+                            div = document.createElement('div');
+                            div.innerHTML = i+1;
+                            div.setAttribute('data-page', i);
+                            div.classList.add('page_btn');
+                            div.addEventListener('click', this.pageNumberClickEvent);
+                            paginationConatiner.append(div);
+                        }
+                        else {
+                            div = document.createElement('div');
+                            div.innerText = '...';
+                            div.classList.add('btn_dots');
+                            paginationConatiner.append(div);
+                            i = (i > this.page-2) ? (this.totalPages - 4) : this.page-2;
+                        }
+                    }
+                }
+            }
+            else {
+                for(i = 0; i < this.totalPages; i++) {
+                    div = document.createElement('div');
+                    div.innerHTML = i+1;
+                    div.setAttribute('data-page', i);
+                    div.classList.add('page_btn');
+                    div.addEventListener('click', this.pageNumberClickEvent);
+                    paginationConatiner.append(div);
+                }
             }
             paginationConatiner.querySelector('[data-page="0"]')?.classList.add('active');
             this.nextBtn = document.createElement('div');
@@ -153,15 +198,61 @@ class DataTable {
                 if(this.totalPages > 1 && this.nextBtn.classList.contains('disabled')) this.nextBtn.classList.remove('disabled');
             }
             tfoot.querySelectorAll('tr td .pages-container [data-page]').forEach(b => b.remove());
+            tfoot.querySelectorAll('tr td .pages-container .btn_dots').forEach(d => d.remove());
+            tfoot.querySelector('tr td .pages-container input')?.remove();
             const prevBtnElement = tfoot.querySelector('[data-next]');
-            for(i = 0; i < this.totalPages; i++) {
-                div = document.createElement('div');
-                div.innerHTML = i+1;
-                div.setAttribute('data-page', i);
-                div.classList.add('page_btn');
-                div.addEventListener('click', this.pageNumberClickEvent);
-                prevBtnElement.before(div);
+            const tooMany = (this.totalPages > 20);
+            if(tooMany) {
+                if(this.tooManyUseInput) {
+                    for(i = 0; i < this.totalPages; i++) {
+                        if(i == 7) {
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.addEventListener('change', this.pageNumberTypeEvent);
+                            prevBtnElement.before(input);
+                            i = this.totalPages - 7;
+                        }
+                        div = document.createElement('div');
+                        div.innerHTML = i+1;
+                        div.setAttribute('data-page', i);
+                        div.classList.add('page_btn');
+                        div.addEventListener('click', this.pageNumberClickEvent);
+                        prevBtnElement.before(div);
+                    }
+                }
+                else {
+                    let diff = 0;
+                    for(i = 0; i < this.totalPages; i++) {
+                        diff = this.page - i;
+                        if(i < 3 || i >= (this.totalPages - 3) || (diff < 2 && diff > -2)) {
+                            div = document.createElement('div');
+                            div.innerHTML = i+1;
+                            div.setAttribute('data-page', i);
+                            div.classList.add('page_btn');
+                            div.addEventListener('click', this.pageNumberClickEvent);
+                            prevBtnElement.before(div);
+                        }
+                        else {
+                            div = document.createElement('div');
+                            div.innerText = '...';
+                            div.classList.add('btn_dots');
+                            prevBtnElement.before(div);
+                            i = (i > this.page-2) ? (this.totalPages - 4) : this.page-2;
+                        }
+                    }
+                }
             }
+            else {
+                for(i = 0; i < this.totalPages; i++) {
+                    div = document.createElement('div');
+                    div.innerHTML = i+1;
+                    div.setAttribute('data-page', i);
+                    div.classList.add('page_btn');
+                    div.addEventListener('click', this.pageNumberClickEvent);
+                    prevBtnElement.before(div);
+                }
+            }
+
             tfoot.querySelector(`.active`)?.classList.remove('active');
             tfoot.querySelector(`[data-page="${this.page}"]`)?.classList.add('active');
             const pageItemsStart = (this.page * this.perPage) + 1;
@@ -170,9 +261,17 @@ class DataTable {
     }
 
     pageNumberClickEvent = (e) => {
-        const page = e.currentTarget.getAttribute('data-page');
+        const page = parseInt(e.currentTarget.getAttribute('data-page'));
         if(this.page != page) {
             this.page = page;
+            this.getDataFromFile();
+        }
+    }
+
+    pageNumberTypeEvent = (e) => {
+        const page = parseInt(e.currentTarget.value);
+        if(this.page != page && page < this.totalPages) {
+            this.page = page-1;
             this.getDataFromFile();
         }
     }
