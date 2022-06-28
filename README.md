@@ -24,3 +24,4 @@ const newDataTable = new DataTable({
     }
 });
 ```
+Warning! If building the sql in javascript instead of doing it in the PHP you should implement some sort of Authentication or someone could take advantage of it.
