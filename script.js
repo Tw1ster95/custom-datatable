@@ -13,7 +13,6 @@ class DataTable {
         searchBox = false,
         searchBoxContainer = null,
         columnSelector = null,
-        columnSelectorContainer = null,
         tooManyUseInput = false,
         rowCreated = () => {},
         colFormat = () => {},
@@ -113,7 +112,7 @@ class DataTable {
     }
 
     addColumnSelector = () => {
-        if(!this.columnSelector) return;
+        if(!this.columnSelector || !this.columnSelector.enable) return;
         if(this.columnSelector.container) this.columnSelector.container = document.querySelector(this.columnSelector.container);
         if(!this.columnSelector.container) this.columnSelector.container = this.getDefaultSelectorsContainer();
         const div = document.createElement('div');
@@ -129,11 +128,53 @@ class DataTable {
             item = document.createElement('li');
             item.classList.add('selected');
             item.innerText = headers[i].innerText;
+            item.addEventListener('click', this.toggleSelectedColumn);
             container.append(item);
         }
         div.append(label);
         div.append(container);
         this.columnSelector.container.prepend(div);
+    }
+
+    toggleSelectedColumn = (e) => {
+        const elIndex = Array.prototype.indexOf.call(e.currentTarget.parentNode.children, e.currentTarget);
+        const colIndex = this.columnSelected.findIndex(c => c == elIndex);
+        if(e.currentTarget.classList.contains('selected')) {
+            e.currentTarget.classList.remove('selected');
+            if(colIndex > -1) {
+                this.columnSelected.splice(colIndex, 1);
+                this.showColumn(elIndex);
+            }
+        }
+        else {
+            e.currentTarget.classList.add('selected');
+            if(colIndex == -1) {
+                this.columnSelected.push(elIndex);
+                this.hideColumn(elIndex);
+            }
+        }
+    }
+
+    showColumn = (i) => {
+        let children = this.table.querySelectorAll(`thead tr th:nth-child(${i+1})`);
+        for(let a = 0; a < children.length; a++) {
+            if(!children[a].classList.contains('hidden')) children[a].classList.add('hidden');
+        }
+        children = this.table.querySelectorAll(`tbody tr td:nth-child(${i+1})`);
+        for(let a = 0; a < children.length; a++) {
+            if(!children[a].classList.contains('hidden')) children[a].classList.add('hidden');
+        }
+    }
+
+    hideColumn = (i) => {
+        let children = this.table.querySelectorAll(`thead tr th:nth-child(${i+1})`);
+        for(let a = 0; a < children.length; a++) {
+            if(children[a].classList.contains('hidden')) children[a].classList.remove('hidden');
+        }
+        children = this.table.querySelectorAll(`tbody tr td:nth-child(${i+1})`);
+        for(let a = 0; a < children.length; a++) {
+            if(children[a].classList.contains('hidden')) children[a].classList.remove('hidden');
+        }
     }
 
     addPerPageSelector = (perPageSelectorContainer) => {

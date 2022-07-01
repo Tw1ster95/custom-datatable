@@ -68,6 +68,9 @@ body {
     border-style: solid;
     border-color: #e0e0e0;
     border-radius: .25em;
+    overflow: hidden;
+    padding-top: .25em;
+    padding-bottom: .25em;
 }
 .data-table-container .data-table-selectors .columns-selector.open ul {
     display: block;
@@ -76,6 +79,7 @@ body {
     width: 100%;
     background: #fff;
     cursor: pointer;
+    padding: .25em;
 }
 .data-table-container .data-table-selectors .columns-selector.open li.selected {
     background: #007aff;
@@ -121,6 +125,10 @@ body {
     margin-left: auto;
     margin-right: auto;
     font-size: 0.75rem;
+}
+.data-table-container table[data-table] th.hidden,
+.data-table-container table[data-table] td.hidden {
+    display: none;
 }
 
 .data-table-container table[data-table] td,
