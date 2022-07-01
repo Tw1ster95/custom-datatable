@@ -43,14 +43,25 @@
                 id: 'dataTableID',
                 dataFile: 'data-table.php',
                 perPageDefault: 20,
+                perPageSelector: true,
+                perPageOptions: [ 5, 10, 20, 50, 100 ],
                 searchBox: true,
                 searchBoxContainerID: null,
                 tooManyUseInput: false,
                 colFormat: (col_id, row_data) => {
                     if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;
+                    else if(col_id == 3) return `<div contenteditable="true">${row_data[col_id]}</div>`;
                 },
+                // Table Row is created
                 rowCreated: (row, data) => {
-                    //console.log('row created');
+                    // We get the div in the column that we have set the contenteditable to
+                    const el = row.querySelector('[contenteditable="true"]');
+                    // We add it some events
+                    el.addEventListener('focus', (e) => el.setAttribute('old-text', el.innerText));
+                    el.addEventListener('focusout', (e) => {
+                        if(e.currentTarget.innerText !== e.currentTarget.getAttribute('old-text')) console.log(e.currentTarget);
+                        e.currentTarget.setAttribute('old-text', '');
+                    });
                 },
                 initComplete: (data) => {
                     //console.log(data);
@@ -64,6 +75,7 @@
                 id: 'dataTablev2ID',
                 dataFile: 'data-table-v2.php',
                 perPageDefault: 5,
+                perPageSelector: false,
                 sql_cols: [ 'id', 'name', 'email', 'random_num', 'random_string' ],
                 sql_from: 'test_table',
                 sql_join: '',

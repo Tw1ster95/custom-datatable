@@ -30,12 +30,24 @@ body {
 .data-table-container .data-table-filters {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+}
+.data-table-container .data-table-filters .entries-filter {
+    width: 100%;
+    text-align: left;
+    display: inline-block;
+    white-space: nowrap;
+}
+.data-table-container .data-table-filters .search-filter {
+    width: 100%;
+    text-align: right;
+    display: inline-block;
+    white-space: nowrap;
 }
 .data-table-container .data-table-filters span {
 
 }
-.data-table-container .data-table-filters input {
+.data-table-container .data-table-filters input,
+.data-table-container .data-table-filters select {
     border-width: 1px;
     border-style: solid;
     border-color: #8A8A8F;
@@ -45,7 +57,9 @@ body {
     padding: .25em;
 }
 .data-table-container .data-table-filters input:active,
-.data-table-container .data-table-filters input:focus {
+.data-table-container .data-table-filters input:focus,
+.data-table-container .data-table-filters select:active,
+.data-table-container .data-table-filters select:focus {
     outline: none;
 }
 

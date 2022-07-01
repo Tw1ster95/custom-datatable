@@ -7,6 +7,9 @@ class DataTable {
         sql_join = '',
         sql_where = '',
         perPageDefault = 20,
+        perPageSelector = true,
+        perPageSelectorContainer = null,
+        perPageOptions = [ 5, 10, 20, 50, 100 ],
         searchBox = false,
         searchBoxContainer = null,
         tooManyUseInput = false,
@@ -19,7 +22,9 @@ class DataTable {
         this.table = document.getElementById(id);
         if(!this.table) return;
         this.table.setAttribute('data-table', '');
-        this.perPageDefault = perPageDefault;
+        this.perPage = perPageDefault;
+        this.perPageSelector = perPageSelector;
+        this.perPageOptions = perPageOptions;
         this.tooManyUseInput = tooManyUseInput;
         this.dataFile = dataFile;
         this.searchBox = searchBox;
@@ -41,12 +46,13 @@ class DataTable {
         if(this.dataFile) this.getDataFromFile();
         this.addHeaderSortListeners();
         this.addSearchBox(searchBoxContainer);
+        this.addPerPageSelector(perPageSelectorContainer);
     }
 
     getDataFromFile = async () => {
         const fd = new FormData();
         fd.append('page', this.page);
-        fd.append('limit', this.perPageDefault);
+        fd.append('limit', this.perPage);
         fd.append('orderby', this.orderby);
         fd.append('order_direction', this.order_direction);
         if(this.sql_cols) this.sql_cols.forEach(c => fd.append('sql_cols[]', c));
@@ -80,29 +86,59 @@ class DataTable {
     }
 
     getDefaultFiltersContainer = () => {
-        let filtersContainer = this.table.querySelector('.data-table-filters');
+        let filtersContainer = this.table.closest('.data-table-container').querySelector('.data-table-filters');
         if(!filtersContainer) {
             filtersContainer = document.createElement('div');
             filtersContainer.classList.add('data-table-filters');
             filtersContainer.setAttribute('for-data-table', this.table.getAttribute('id'));
+            this.table.before(filtersContainer);
         }
         return filtersContainer;
     }
 
+    addPerPageSelector = (perPageSelectorContainer) => {
+        if(!this.perPageSelector || !this.perPageOptions?.length) return;
+        if(perPageSelectorContainer) this.perPageSelectorContainer = document.querySelector(perPageSelectorContainer);
+        if(!this.perPageSelectorContainer) this.perPageSelectorContainer = this.getDefaultFiltersContainer();
+        const div = document.createElement('div');
+        div.classList.add('entries-filter');
+        const span = document.createElement('span');
+        span.innerHTML = "Per Page:";
+        const select = document.createElement('select');
+        select.addEventListener('change', this.onPerPageChange);
+        let option;
+        this.perPageOptions.forEach(o => {
+            option = document.createElement('option');
+            option.value = o;
+            option.innerHTML = o;
+            if(o == this.perPage) option.selected = true;
+            select.append(option);
+        })
+        div.append(span);
+        div.append(select);
+        this.perPageSelectorContainer.prepend(div);
+    }
+
     addSearchBox = (searchBoxContainer) => {
         if(!this.searchBox) return;
-
         if(searchBoxContainer) this.searchBoxContainer = document.querySelector(searchBoxContainer);
         if(!this.searchBoxContainer) this.searchBoxContainer = this.getDefaultFiltersContainer();
+        const div = document.createElement('div');
+        div.classList.add('search-filter');
         const span = document.createElement('span');
         span.innerHTML = "Search:";
         const input = document.createElement('input');
         input.type = "text";
         input.addEventListener('keyup', this.onSearchInput);
 
-        this.searchBoxContainer.append(span);   
-        this.searchBoxContainer.append(input);
-        this.table.before(this.searchBoxContainer);
+        div.append(span);   
+        div.append(input);
+        this.searchBoxContainer.prepend(div);
+    }
+
+    onPerPageChange = (e) => {
+        this.perPage = e.currentTarget.value;
+        this.getDataFromFile();
     }
 
     onSearchInput = (e) => {
@@ -148,7 +184,7 @@ class DataTable {
         const tbody = this.table.querySelector('tbody') || this.generateTBody();
         tbody.textContent = '';
         let tr, td, i, a, cols = data[0].length, formated;
-        for(a = 0; a < this.perPageDefault; a++) {
+        for(a = 0; a < this.perPage; a++) {
             tr = document.createElement('tr');
             tr.classList.add((a % 2 == 0) ? 'even' : 'odd');
             if(a < data.length) {
@@ -168,15 +204,15 @@ class DataTable {
         let tfoot = this.table.querySelector('tfoot') || this.generateTFoot();
         let pagesCount = 0;
         pagesCount = tfoot.querySelectorAll('tr td .pages-container')?.length || 0;
-        this.totalPages = Math.floor(this.totalRows / this.perPageDefault) + ((this.totalRows % this.perPageDefault) > 0 ? 1 : 0);
+        this.totalPages = Math.floor(this.totalRows / this.perPage) + ((this.totalRows % this.perPage) > 0 ? 1 : 0);
         let i, div, tr, td, input;
         if(!pagesCount) {
             tr = document.createElement('tr');
             td = document.createElement('td');
             td.setAttribute('colspan', this.columns_count);
             const pageInfoConatiner = document.createElement('div');
-            const pageItemsStart = (this.page * this.perPageDefault) + 1;
-            pageInfoConatiner.innerText = `Showing ${pageItemsStart} to ${(pageItemsStart + this.perPageDefault > this.totalRows ? this.totalRows : (pageItemsStart + this.perPageDefault))} of ${this.totalRows} entries`;
+            const pageItemsStart = (this.page * this.perPage) + 1;
+            pageInfoConatiner.innerText = `Showing ${pageItemsStart} to ${(pageItemsStart + this.perPage > this.totalRows ? this.totalRows : (pageItemsStart + this.perPage))} of ${this.totalRows} entries`;
             pageInfoConatiner.classList.add('page-info');
             td.append(pageInfoConatiner);
             tr.append(td);
@@ -324,8 +360,8 @@ class DataTable {
 
             tfoot.querySelector(`.active`)?.classList.remove('active');
             tfoot.querySelector(`[data-page="${this.page}"]`)?.classList.add('active');
-            const pageItemsStart = (this.page * this.perPageDefault) + 1;
-            tfoot.querySelector('.page-info').innerText = `Showing ${pageItemsStart} to ${(pageItemsStart + this.perPageDefault > this.totalRows ? this.totalRows : (pageItemsStart + this.perPageDefault))} of ${this.totalRows} entries`;
+            const pageItemsStart = (this.page * this.perPage) + 1;
+            tfoot.querySelector('.page-info').innerText = `Showing ${pageItemsStart} to ${(pageItemsStart + this.perPage > this.totalRows ? this.totalRows : (pageItemsStart + this.perPage))} of ${this.totalRows} entries`;
         }
     }
 
