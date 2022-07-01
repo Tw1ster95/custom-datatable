@@ -8,7 +8,8 @@
 
     // Stop changing here
 
-    $conn = new mysqli('localhost','root', '', 'test');
+    $config = include_once 'config.php';
+    $conn = new mysqli($config['host'], $config['name'], $config['pass'], $config['db']);
     if(!$conn) exit;
 
     $page = $conn->real_escape_string($_POST['page'] ?? 0);
@@ -36,6 +37,6 @@
 
     echo json_encode(array([
         'data' => $output,
-        'total_rows' => $rData[0]['total_rows']
+        'total_rows' => ($rData[0]['total_rows'] ?? 0)
     ]));
     exit;

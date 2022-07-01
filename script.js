@@ -56,8 +56,11 @@ class DataTable {
         try {
             const json = await response.json();
             this.totalRows = json[0].total_rows;
-            this.replaceRows(json[0].data);
-            this.addPagination();
+            if(!this.totalRows) this.noDataFound();
+            else {
+                this.replaceRows(json[0].data);
+                this.addPagination();
+            }
             this.initComplete({
                 data: json[0].data,
                 total_rows: json[0].total_rows,
@@ -67,6 +70,17 @@ class DataTable {
         catch(err) {
             this.error(err);
         }
+    }
+
+    noDataFound = () => {
+        const tbody = this.table.querySelector('tbody');
+        if(!tbody) return;
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.setAttribute('colspan', this.columns_count);
+        td.innerHTML = 'No data found.';
+        tr.append(td);
+        tbody.append(tr);
     }
 
     replaceRows = (data) => {
