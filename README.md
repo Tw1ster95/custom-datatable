@@ -5,7 +5,32 @@ Usage:
 const newDataTable = new DataTable({
     id: 'dataTableID',
     dataFile: 'data-table.php',
-    perPage: 5,
+    perPageDefault: 20,
+    searchBox: true,
+    searchBoxContainerID: null,
+    tooManyUseInput: false,
+    colFormat: (col_id, row_data) => {
+        if(col_id == 1) return `<div style="color: red; text-align: center">${row_data[col_id]}</div>`;
+    },
+    rowCreated: (row, data) => {
+        console.log('row created');
+    },
+    initComplete: (data) => {
+        console.log(data);
+    },
+    error: (err) => {
+        console.error(err);
+    }
+});
+```
+```javascript
+const newDataTable = new DataTable({
+    id: 'dataTableID',
+    dataFile: 'data-tablev2.php',
+    perPageDefault: 20,
+    searchBox: true,
+    searchBoxContainerID: null,
+    tooManyUseInput: false,
     sql_cols: [ 'cmod.cmodel_id', 'cmod.cmodel_name', 'cmake.cmake_name' ],
     sql_from: 'car_models as cmod',
     sql_join: 'INNER JOIN car_makes as cmake ON cmake.cmake_id = cmod.cmodel_make_id',
