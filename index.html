@@ -9,30 +9,42 @@
         <script src="script.js"></script>
     </head>
     <body>
-        <table id="dataTableID" class="table-striped table-hover table-bordered">
-            <thead>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <br>
-        <br>
-        <br>
-        <table id="dataTablev2ID" class="table-striped table-hover table-bordered">
-            <thead>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="container">
+            <div class="data-table-container">
+                <table id="dataTableID" class="table-striped table-hover table-bordered">
+                    <thead>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Random Number</th>
+                        <th>Random String</th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+            <br>
+            <div class="data-table-container">
+                <table id="dataTablev2ID" class="table-striped table-hover table-bordered">
+                    <thead>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Random Number</th>
+                        <th>Random String</th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
         <script>
             const newDataTable = new DataTable({
                 id: 'dataTableID',
                 dataFile: 'data-table.php',
-                perPage: 20,
+                perPageDefault: 20,
+                searchBox: true,
+                searchBoxContainerID: null,
                 tooManyUseInput: false,
                 colFormat: (col_id, row_data) => {
                     if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;
@@ -51,10 +63,11 @@
             const newDataTablev2 = new DataTable({
                 id: 'dataTablev2ID',
                 dataFile: 'data-table-v2.php',
-                perPage: 20,
-                sql_cols: [ 'id', 'name', 'email' ],
+                perPageDefault: 5,
+                sql_cols: [ 'id', 'name', 'email', 'random_num', 'random_string' ],
                 sql_from: 'test_table',
                 sql_join: '',
+                searchBox: true,
                 sql_where: '',
                 tooManyUseInput: false,
                 colFormat: (col_id, row_data) => {

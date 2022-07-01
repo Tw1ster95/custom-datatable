@@ -14,113 +14,147 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-table[data-table] {
+.container {
     width: 80%;
-    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.data-table-container {
+    width: 100%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.data-table-container .data-table-filters {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.data-table-container .data-table-filters span {
+
+}
+.data-table-container .data-table-filters input {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #8A8A8F;
+    border-radius: .25em;
+    margin-left: .25em;
+    margin-right: .25em;
+    padding: .25em;
+}
+.data-table-container .data-table-filters input:active,
+.data-table-container .data-table-filters input:focus {
+    outline: none;
+}
+
+.data-table-container table[data-table] {
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     font-size: 0.75rem;
 }
 
-table[data-table] td,
-table[data-table] th,
-table[data-table].table-bordered {
+.data-table-container table[data-table] td,
+.data-table-container table[data-table] th,
+.data-table-container table[data-table].table-bordered {
     border-color: #e0e0e0;
 }
 
-table[data-table].table-bordered {
+.data-table-container table[data-table].table-bordered {
     border: 1px solid #e9ecef;
 }
 
-table[data-table] > tbody > tr > td, 
-table[data-table] > tbody > tr > th, 
-table[data-table] > tfoot > tr > td, 
-table[data-table] > tfoot > tr > th, 
-table[data-table] > thead > tr > td, 
-table[data-table] > thead > tr > th,
-table[data-table].table-bordered {
+.data-table-container table[data-table] > tbody > tr > td, 
+.data-table-container table[data-table] > tbody > tr > th, 
+.data-table-container table[data-table] > tfoot > tr > td, 
+.data-table-container table[data-table] > tfoot > tr > th, 
+.data-table-container table[data-table] > thead > tr > td, 
+.data-table-container table[data-table] > thead > tr > th,
+.data-table-container table[data-table].table-bordered {
 	border-color: #e0e0e0;
 }
 
-table[data-table].table-striped tbody tr.odd {
+.data-table-container table[data-table].table-striped tbody tr.odd {
     background-color: #eee;
 }
-table[data-table].table-striped tbody tr.even {
+.data-table-container table[data-table].table-striped tbody tr.even {
     background-color: #fff;
 }
-table[data-table].table-hover tbody tr.odd:hover,
-table[data-table].table-hover tbody tr.even:hover {
+.data-table-container table[data-table].table-hover tbody tr.odd:hover,
+.data-table-container table[data-table].table-hover tbody tr.even:hover {
 	background: #efeff4;
 }
-table[data-table] tbody tr td {
+.data-table-container table[data-table] tbody tr td {
     padding: .25em;
 }
 
-table[data-table] tfoot tr td {
+.data-table-container table[data-table] tfoot tr td {
     padding: .125em .5em;
 }
 
-table[data-table] tfoot tr td .page-info {
+.data-table-container table[data-table] tfoot tr td .page-info {
     
 }
 
-table[data-table] tfoot tr td .pages-container {
+.data-table-container table[data-table] tfoot tr td .pages-container {
     display: flex;
     flex-direction: row;
 }
 
-table[data-table] tfoot tr td .pages-container * {
+.data-table-container table[data-table] tfoot tr td .pages-container * {
     background: transparent;
     color: #000;
     user-select: none;
 }
 
-table[data-table] tfoot tr td .pages-container .page_btn {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn {
     padding: .25rem .5rem;
     cursor: pointer;
 }
-table[data-table] tfoot tr td .pages-container .page_btn.active,
-table[data-table] tfoot tr td .pages-container .page_btn.active {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn.active,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn.active {
     border: 1px solid #8A8A8F;
 }
-table[data-table] tfoot tr td .pages-container .page_btn,
-table[data-table] tfoot tr td .pages-container .page_btn,
-table[data-table] tfoot tr td .pages-container .page_btn_next,
-table[data-table] tfoot tr td .pages-container .page_btn_prev {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev {
     border-radius: .5em;
 }
-table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
-table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
-table[data-table] tfoot tr td .pages-container .page_btn_next,
-table[data-table] tfoot tr td .pages-container .page_btn_prev {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn:not(.active),
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev {
     border-width: 1px;
     border-style: solid;
     border-color: transparent;
 }
-table[data-table] tfoot tr td .pages-container .page_btn:not(.active):hover,
-table[data-table] tfoot tr td .pages-container .page_btn:not(.active):active,
-table[data-table] tfoot tr td .pages-container .page_btn_next:hover,
-table[data-table] tfoot tr td .pages-container .page_btn_prev:hover {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn:not(.active):hover,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn:not(.active):active,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next:hover,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev:hover {
     border-color: #8A8A8F;
 }
-table[data-table] tfoot tr td .pages-container .page_btn_next,
-table[data-table] tfoot tr td .pages-container .page_btn_prev {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev {
     padding: .3rem .5rem;
     font-size: .75em;
 }
-table[data-table] tfoot tr td .pages-container .page_btn_next.disabled,
-table[data-table] tfoot tr td .pages-container .page_btn_prev.disabled {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next.disabled,
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev.disabled {
     border-color: transparent;
     background: transparent;
     color: #8A8A8F;
     pointer-events: none;
 }
-table[data-table] tfoot tr td .pages-container .page_btn_next:not(.disabled),
-table[data-table] tfoot tr td .pages-container .page_btn_prev:not(.disabled) {
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_next:not(.disabled),
+.data-table-container table[data-table] tfoot tr td .pages-container .page_btn_prev:not(.disabled) {
     cursor: pointer;
 }
 
-table[data-table] tfoot tr td .pages-container input {
+.data-table-container table[data-table] tfoot tr td .pages-container input {
     max-width: 50px;
     background: #fff;
     cursor: pointer;
@@ -129,7 +163,7 @@ table[data-table] tfoot tr td .pages-container input {
     border-radius: .5em;
 }
 
-table[data-table] thead tr th {
+.data-table-container table[data-table] thead tr th {
     background: #fff;
     padding: .25em;
     cursor: pointer;
@@ -140,6 +174,6 @@ table[data-table] thead tr th {
 .table > tfoot > tr > th,
 .table > thead > tr > td,
 .table > thead > tr > th,
-table[data-table].table-bordered {
+.data-table-container table[data-table].table-bordered {
     border-color: #e0e0e0;
 }

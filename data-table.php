@@ -1,7 +1,7 @@
 <?php
     // Change Here
 
-    $qColumns = [ "id", "name", "email" ];
+    $qColumns = [ "id", "name", "email", "random_num", "random_string" ];
     $qFrom = "test_table";
     $qJoin = "";
     $qWhere = "";
@@ -16,10 +16,20 @@
     $limit = $conn->real_escape_string($_POST['limit'] ?? 20);
     $orderby = $conn->real_escape_string($_POST['orderby'] ?? 0);
     $order_direction = $conn->real_escape_string($_POST['order_direction'] ?? 'ASC');
+    $search_text = $conn->real_escape_string($_POST['search_text'] ?? '');
     $offset = $limit * $page;
 
     $qLimit = "LIMIT $offset, $limit;";
     $qSelect = implode(', ', $qColumns);
+    if(strlen($search_text) > 0) {
+        $qWhere .= (strpos($qWhere, 'WHERE') === false ? "WHERE (" : " AND (");
+        $first = true;
+        foreach($qColumns as $column) {
+            $qWhere .= ($first ? "" : " OR ") . explode(' as ', $column)[0] . " LIKE '%$search_text%'";
+            $first = false;
+        }
+        $qWhere .= ")";
+    }
     $qCountRows = "(SELECT COUNT(*) FROM $qFrom $qWhere) as total_rows";
     $qOrderBy = "ORDER BY {$qColumns[$orderby]} $order_direction";
 

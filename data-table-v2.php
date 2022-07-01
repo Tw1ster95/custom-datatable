@@ -14,9 +14,19 @@
     $limit = $conn->real_escape_string($_POST['limit'] ?? 20);
     $orderby = $conn->real_escape_string($_POST['orderby'] ?? 0);
     $order_direction = $conn->real_escape_string($_POST['order_direction'] ?? 'ASC');
+    $search_text = $conn->real_escape_string($_POST['search_text'] ?? '');
     $offset = $limit * $page;
 
     $qSelect = implode(', ', $qColumns);
+    if(strlen($search_text) > 0) {
+        $qWhere .= (strpos($qWhere, 'WHERE') === false ? "WHERE (" : " AND (");
+        $first = true;
+        foreach($qColumns as $column) {
+            $qWhere .= ($first ? "" : " OR ") . "$column LIKE '%$search_text%'";
+            $first = false;
+        }
+        $qWhere .= ")";
+    }
     $qCountRows = "(SELECT COUNT(*) FROM $qFrom $qWhere) as total_rows";
     $qLimit = "LIMIT $offset, $limit;";
     $qOrderBy = "ORDER BY {$qColumns[$orderby]} $order_direction";
