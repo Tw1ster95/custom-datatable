@@ -73,8 +73,7 @@ class DataTable {
     }
 
     noDataFound = () => {
-        const tbody = this.table.querySelector('tbody');
-        if(!tbody) return;
+        const tbody = this.table.querySelector('tbody') || this.generateTBody();
         const tr = document.createElement('tr');
         const td = document.createElement('td');
         td.setAttribute('colspan', this.columns_count);
@@ -83,10 +82,21 @@ class DataTable {
         tbody.append(tr);
     }
 
+    generateTBody = () => {
+        const tbody = document.createElement('tbody');
+        this.table.append(tbody);
+        return tbody;
+    }
+
+    generateTFoot = () => {
+        const tfoot = document.createElement('tfoot');
+        this.table.append(tfoot);
+        return tfoot;
+    }
+
     replaceRows = (data) => {
         this.rows = new Array();
-        const tbody = this.table.querySelector('tbody');
-        if(!tbody) return;
+        const tbody = this.table.querySelector('tbody') || this.generateTBody();
         tbody.textContent = '';
         let tr, td, i, a, cols = data[0].length, formated;
         for(a = 0; a < this.perPage; a++) {
@@ -106,13 +116,9 @@ class DataTable {
     }
 
     addPagination = () => {
-        let tfoot = this.table.querySelector('tfoot');
+        let tfoot = this.table.querySelector('tfoot') || this.generateTFoot();
         let pagesCount = 0;
-        if(!tfoot) {
-            tfoot = document.createElement('tfoot');
-            this.table.append(tfoot);
-        }
-        else pagesCount = tfoot.querySelectorAll('tr td .pages-container')?.length || 0;
+        pagesCount = tfoot.querySelectorAll('tr td .pages-container')?.length || 0;
         this.totalPages = Math.floor(this.totalRows / this.perPage) + ((this.totalRows % this.perPage) > 0 ? 1 : 0);
         let i, div, tr, td, input;
         if(!pagesCount) {

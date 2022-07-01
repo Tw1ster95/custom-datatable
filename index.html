@@ -11,9 +11,9 @@
     <body>
         <table id="dataTableID" class="table-striped table-hover table-bordered">
             <thead>
-                <th>Car Model ID</th>
-                <th>Car Model Name</th>
-                <th>Car Make Name</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
             </thead>
             <tbody></tbody>
         </table>
@@ -22,9 +22,9 @@
         <br>
         <table id="dataTablev2ID" class="table-striped table-hover table-bordered">
             <thead>
-                <th>Car Model ID</th>
-                <th>Car Model Name</th>
-                <th>Car Make Name</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
             </thead>
             <tbody></tbody>
         </table>
@@ -35,7 +35,7 @@
                 perPage: 20,
                 tooManyUseInput: false,
                 colFormat: (col_id, row_data) => {
-                    if(col_id == 1) return `<div style="color: red; text-align: center">${row_data[col_id]}</div>`;
+                    if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;
                 },
                 rowCreated: (row, data) => {
                     //console.log('row created');
