@@ -47,6 +47,9 @@
                 perPageOptions: [ 5, 10, 20, 50, 100 ],
                 searchBox: true,
                 searchBoxContainerID: null,
+                columnSelector: {
+                    name: 'Select Columns'
+                },
                 tooManyUseInput: false,
                 colFormat: (col_id, row_data) => {
                     if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;

@@ -12,6 +12,8 @@ class DataTable {
         perPageOptions = [ 5, 10, 20, 50, 100 ],
         searchBox = false,
         searchBoxContainer = null,
+        columnSelector = null,
+        columnSelectorContainer = null,
         tooManyUseInput = false,
         rowCreated = () => {},
         colFormat = () => {},
@@ -26,6 +28,8 @@ class DataTable {
         this.perPageSelector = perPageSelector;
         this.perPageOptions = perPageOptions;
         this.tooManyUseInput = tooManyUseInput;
+        this.columnSelector = columnSelector;
+        this.columnSelected = new Array();
         this.dataFile = dataFile;
         this.searchBox = searchBox;
         this.searchTimeout = null;
@@ -45,6 +49,7 @@ class DataTable {
         if(!this.columns_count) return;
         if(this.dataFile) this.getDataFromFile();
         this.addHeaderSortListeners();
+        this.addColumnSelector();
         this.addSearchBox(searchBoxContainer);
         this.addPerPageSelector(perPageSelectorContainer);
     }
@@ -94,6 +99,41 @@ class DataTable {
             this.table.before(filtersContainer);
         }
         return filtersContainer;
+    }
+
+    getDefaultSelectorsContainer = () => {
+        let selectorsContainer = this.table.closest('.data-table-container').querySelector('.data-table-selectors');
+        if(!selectorsContainer) {
+            selectorsContainer = document.createElement('div');
+            selectorsContainer.classList.add('data-table-selectors');
+            selectorsContainer.setAttribute('for-data-table', this.table.getAttribute('id'));
+            this.table.before(selectorsContainer);
+        }
+        return selectorsContainer;
+    }
+
+    addColumnSelector = () => {
+        if(!this.columnSelector) return;
+        if(this.columnSelector.container) this.columnSelector.container = document.querySelector(this.columnSelector.container);
+        if(!this.columnSelector.container) this.columnSelector.container = this.getDefaultSelectorsContainer();
+        const div = document.createElement('div');
+        div.classList.add('columns-selector');
+        const label = document.createElement('label');
+        label.innerText = this.columnSelector.name || 'Column Selector';
+        label.addEventListener('click', (e) => e.currentTarget.parentElement.classList.toggle('open'));
+        const container = document.createElement('ul');
+        const headers = this.table.querySelectorAll('thead th');
+        let item;
+        for(let i = 0; i < this.columns_count; i++) {
+            this.columnSelected.push(i);
+            item = document.createElement('li');
+            item.classList.add('selected');
+            item.innerText = headers[i].innerText;
+            container.append(item);
+        }
+        div.append(label);
+        div.append(container);
+        this.columnSelector.container.prepend(div);
     }
 
     addPerPageSelector = (perPageSelectorContainer) => {
