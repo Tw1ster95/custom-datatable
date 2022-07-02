@@ -273,6 +273,7 @@ class DataTable {
                     td = document.createElement('td');
                     formated = this.colFormat(i, data[a]);
                     td.innerHTML = (formated == undefined) ? data[a][i] : formated;
+                    if(this.columnSelected.findIndex(c => c == i) == -1) td.classList.add('hidden');
                     tr.append(td);
                 }
             }
