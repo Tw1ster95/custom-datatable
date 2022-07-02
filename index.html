@@ -60,6 +60,7 @@
                 rowCreated: (row, data) => {
                     // We get the div in the column that we have set the contenteditable to
                     const el = row.querySelector('[contenteditable="true"]');
+                    if(!el) return;
                     // We add it some events
                     el.addEventListener('focus', (e) => el.setAttribute('old-text', el.innerText));
                     el.addEventListener('focusout', (e) => {
