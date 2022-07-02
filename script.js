@@ -268,14 +268,13 @@ class DataTable {
         for(a = 0; a < this.perPage; a++) {
             tr = document.createElement('tr');
             tr.classList.add((a % 2 == 0) ? 'even' : 'odd');
-            if(a < data.length) {
-                for(i = 0; i < cols; i++) {
-                    td = document.createElement('td');
-                    formated = this.colFormat(i, data[a]);
-                    td.innerHTML = (formated == undefined) ? data[a][i] : formated;
-                    if(this.columnSelected.findIndex(c => c == i) == -1) td.classList.add('hidden');
-                    tr.append(td);
-                }
+            if(a >= data.length) continue;
+            for(i = 0; i < cols; i++) {
+                td = document.createElement('td');
+                formated = this.colFormat(i, data[a]);
+                td.innerHTML = (formated == undefined) ? data[a][i] : formated;
+                if(this.columnSelector?.enable && this.columnSelected.findIndex(c => c == i) == -1) td.classList.add('hidden');
+                tr.append(td);
             }
             tbody.append(tr);
             this.rowCreated(tr, data[a]);
