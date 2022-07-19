@@ -55,6 +55,9 @@ class DataTable {
             this.searchBoxTimeout = searchBox.timeout || 400;
         }
         this.colSelectFilter = colSelectFilter || [];
+        for(let i = 0; i < this.colSelectFilter.length; i++) {
+            if(this.colSelectFilter[i] >= this.columns_count) return console.error(`Column with number ${this.colSelectFilter[i]} was given a select filter where the last column is ${this.columns_count-1}.`)
+        }
         this.searchTimeout = null;
         this.searchText = '';
         this.initComplete = initComplete;
@@ -241,14 +244,16 @@ class DataTable {
     addColumnSelectFilters = () => {
         if(this.colSelectFilter) {
             this.uniqueSelectorsContainer = this.getDefaultUniqueSelectorsContainer();
-            let column, colIndex, select, option;
+            const headers = Array.from(this.table.querySelectorAll(`thead tr th`));
+            let column, select, option;
             for(let i = 0; i < this.colSelectFilter.length; i++) {
                 column = this.colSelectFilter[i];
+                if(column >= headers.length) continue;
                 if(this.uniqueSelectsData[column] && this.uniqueSelectsData[column].length) {
                     select = document.createElement('select');
                     select.setAttribute('data-filter-column', column);
                     option = document.createElement('option');
-                    option.innerHTML = 'Filter ' + column;
+                    option.innerHTML = 'Filter ' + headers[column].innerHTML;
                     option.value = '';
                     select.append(option);
                     this.uniqueSelectsData[column].forEach(o => {
