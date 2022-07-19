@@ -1,55 +1,81 @@
-Custom Vanilla Javascript DataTable.  
-  
-Usage:
+
+# Javascript/PHP/MySQL DataTable
+
+Vanilla Javascript DataTable using PHP as back end to fetch data from MySQL.
+
+## Usage/Examples
+
+Javascript:
 ```javascript
 const newDataTable = new DataTable({
     id: 'dataTableID',
-    dataFile: 'data-table.php',
-    perPageDefault: 20,
-    perPageSelector: true,
-    perPageOptions: [ 5, 10, 20, 50, 100 ],
-    searchBox: true,
-    searchBoxContainerID: null,
+    ajax: {
+        url: 'data-random-users.php',
+        method: 'POST'
+    },
+    perPage: {
+        default: 20,
+        selector: true,
+        options: [ 5, 10, 20, 50, 100 ]
+    },
+    searchBox: {
+        enable: true,
+        timeout: 400
+    },
+    colVisibilitySelector: {
+        enable: true,
+        name: 'Select Columns'
+    },
+    colSelectFilter: [
+        'name',
+        'email',
+        'sadasda'
+    ],
     tooManyUseInput: false,
-    colFormat: (col_id, row_data) => {
-        if(col_id == 1) return `<div style="color: red; text-align: center">${row_data[col_id]}</div>`;
+    // Format column before append
+    colFormat: (tr, col_id, row_data) => {
+        if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;
+        else if(col_id == 3) return `<div contenteditable="true">${row_data[col_id]}</div>`;
     },
-    rowCreated: (row, data) => {
-        console.log('row created');
+    // Table Column is created
+    colCreated: (tr, td, col_id, row_data) => {
+        //
     },
+    // Table Row is created
+    rowCreated: (tr, data) => {
+        // We get the div in the column that we have set the contenteditable to
+        const el = tr.querySelector('[contenteditable="true"]');
+        if(!el) return;
+        // We add it some events
+        el.addEventListener('focus', (e) => el.setAttribute('old-text', el.innerText));
+        el.addEventListener('focusout', (e) => {
+            if(e.currentTarget.innerText !== e.currentTarget.getAttribute('old-text')) console.log(e.currentTarget);
+            e.currentTarget.setAttribute('old-text', '');
+        });
+    },
+    // On table fully loaded
     initComplete: (data) => {
-        console.log(data);
+        //console.log(data);
     },
+    // On error
     error: (err) => {
         console.error(err);
     }
 });
 ```
-```javascript
-const newDataTable = new DataTable({
-    id: 'dataTableID',
-    dataFile: 'data-tablev2.php',
-    perPageDefault: 20,
-    perPageSelector: false,
-    searchBox: true,
-    searchBoxContainerID: null,
-    tooManyUseInput: false,
-    sql_cols: [ 'cmod.cmodel_id', 'cmod.cmodel_name', 'cmake.cmake_name' ],
-    sql_from: 'car_models as cmod',
-    sql_join: 'INNER JOIN car_makes as cmake ON cmake.cmake_id = cmod.cmodel_make_id',
-    sql_where: '',
-    colFormat: (col_id, row_data) => {
-        if(col_id == 1) return `<div style="color: red; text-align: center">${row_data[col_id]}</div>`;
-    },
-    rowCreated: (row, data) => {
-        console.log('row created');
-    },
-    initComplete: (data) => {
-        console.log(data);
-    },
-    error: (err) => {
-        console.error(err);
-    }
-});
+
+PHP file:
+```php
+<?php
+    $qColumns = [ "id", "name", "email", "random_num", "random_string" ];
+    $qFrom = "test_table";
+    $qJoin = "";
+    $qWhere = "";
+    
+    include 'datatable-func.php';
+?>
 ```
-Warning! If building the sql in javascript instead of doing it in the PHP you should implement some sort of Authentication or someone could take advantage of it.
+## Screenshots
+
+![App Screenshot](https://gcdnb.pbrd.co/images/8Qj7Lz0xdl2o.png?o=1)
+
