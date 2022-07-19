@@ -85,6 +85,19 @@ body {
     background: #007aff;
     color: #fff;
 }
+.data-table-container .data-table-unique-selectors {
+    display: flex;
+    flex-direction: row;
+}
+.data-table-container .data-table-unique-selectors select {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #e0e0e0;
+    border-radius: .25em;
+    margin-left: .25em;
+    margin-right: .25em;
+    padding: .25em;
+}
 .data-table-container .data-table-filters .entries-filter {
     width: 100%;
     text-align: left;

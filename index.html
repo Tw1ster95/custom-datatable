@@ -22,44 +22,46 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <br>
-            <br>
-            <br>
-            <div class="data-table-container">
-                <table id="dataTablev2ID" class="table-striped table-hover table-bordered">
-                    <thead>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Random Number</th>
-                        <th>Random String</th>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
         </div>
         <script>
             const newDataTable = new DataTable({
                 id: 'dataTableID',
-                dataFile: 'data-table.php',
-                perPageDefault: 20,
-                perPageSelector: true,
-                perPageOptions: [ 5, 10, 20, 50, 100 ],
-                searchBox: true,
-                searchBoxContainerID: null,
-                columnSelector: {
+                ajax: {
+                    url: 'data-random-users.php',
+                    method: 'POST'
+                },
+                perPage: {
+                    default: 20,
+                    selector: true,
+                    options: [ 5, 10, 20, 50, 100 ]
+                },
+                searchBox: {
+                    enable: true,
+                    timeout: 400
+                },
+                colVisibilitySelector: {
                     enable: true,
                     name: 'Select Columns'
                 },
+                colSelectFilter: [
+                    'name',
+                    'email',
+                    'sadasda'
+                ],
                 tooManyUseInput: false,
-                colFormat: (col_id, row_data) => {
+                // Format column before append
+                colFormat: (tr, col_id, row_data) => {
                     if(col_id == 2) return `<a href="mailto:${row_data[col_id]}">${row_data[col_id]}</a>`;
                     else if(col_id == 3) return `<div contenteditable="true">${row_data[col_id]}</div>`;
                 },
+                // Table Column is created
+                colCreated: (tr, td, col_id, row_data) => {
+                    //
+                },
                 // Table Row is created
-                rowCreated: (row, data) => {
+                rowCreated: (tr, data) => {
                     // We get the div in the column that we have set the contenteditable to
-                    const el = row.querySelector('[contenteditable="true"]');
+                    const el = tr.querySelector('[contenteditable="true"]');
                     if(!el) return;
                     // We add it some events
                     el.addEventListener('focus', (e) => el.setAttribute('old-text', el.innerText));
@@ -68,34 +70,11 @@
                         e.currentTarget.setAttribute('old-text', '');
                     });
                 },
+                // On table fully loaded
                 initComplete: (data) => {
                     //console.log(data);
                 },
-                error: (err) => {
-                    console.error(err);
-                }
-            });
-            
-            const newDataTablev2 = new DataTable({
-                id: 'dataTablev2ID',
-                dataFile: 'data-table-v2.php',
-                perPageDefault: 5,
-                perPageSelector: false,
-                sql_cols: [ 'id', 'name', 'email', 'random_num', 'random_string' ],
-                sql_from: 'test_table',
-                sql_join: '',
-                searchBox: true,
-                sql_where: '',
-                tooManyUseInput: false,
-                colFormat: (col_id, row_data) => {
-                    if(col_id == 1) return `<div style="color: red; text-align: center">${row_data[col_id]}</div>`;
-                },
-                rowCreated: (row, data) => {
-                    //console.log('row created');
-                },
-                initComplete: (data) => {
-                    //console.log(data);
-                },
+                // On error
                 error: (err) => {
                     console.error(err);
                 }

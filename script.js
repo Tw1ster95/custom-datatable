@@ -1,91 +1,141 @@
 class DataTable {
     constructor({
         id,
-        dataFile = 'data-table.php',
-        sql_cols = [],
-        sql_from = '',
-        sql_join = '',
-        sql_where = '',
-        perPageDefault = 20,
-        perPageSelector = true,
-        perPageSelectorContainer = null,
-        perPageOptions = [ 5, 10, 20, 50, 100 ],
+        ajax = null,
+        perPage = 20,
         searchBox = false,
-        searchBoxContainer = null,
-        columnSelector = null,
+        colVisibilitySelector = null,
+        colSelectFilter = null,
         tooManyUseInput = false,
-        rowCreated = () => {},
-        colFormat = () => {},
-        initComplete = () => {},
-        error = (err) => { console.error(err) }
+        rowCreated = null,
+        colFormat = null,
+        colCreated = null,
+        initComplete = null,
+        error = null
     }) {
-        if(!id) return;
+        if(!id) return console.error(`No table id given.`);
         this.table = document.getElementById(id);
-        if(!this.table) return;
+        if(!this.table) return console.error(`Invalid table id given.`);
         this.table.setAttribute('data-table', '');
-        this.perPage = perPageDefault;
-        this.perPageSelector = perPageSelector;
-        this.perPageOptions = perPageOptions;
+        this.columns_count = this.table.querySelectorAll('thead th')?.length;
+        if(!this.columns_count) return console.error('No column headers found on table.');
+        if(!perPage) return console.error('Invalid number of items per page given.');
+        if(typeof(perPage) == 'number') {
+            this.perPage = perPage || 20;
+            this.perPageSelector = true;
+            this.perPageOptions = [ 5, 10, 20, 50, 100 ];
+            this.perPageSelectorContainerSelector = null;
+        }
+        else {
+            this.perPage = perPage.default || 20;
+            this.perPageSelector = perPage.selector || true;
+            this.perPageOptions = perPage.options || [ 5, 10, 20, 50, 100 ];
+            this.perPageSelectorContainerSelector = perPage.container || null;
+        }
         this.tooManyUseInput = tooManyUseInput;
-        this.columnSelector = columnSelector;
+        this.colVisibilitySelector = colVisibilitySelector;
         this.columnSelected = new Array();
-        this.dataFile = dataFile;
-        this.searchBox = searchBox;
+        if(ajax) {
+            if(typeof(ajax) == 'string') this.ajaxUrl = ajax;
+            else {
+                this.ajaxUrl = ajax.url || null;
+                if(ajax.method && ajax.method != 'POST' && ajax.method != 'GET') return console.error(`Invalid ajax method given.`);
+                this.ajaxMethod = ajax.method || 'POST';
+                this.dataSrc = ajax.dataSrc || '';
+            }
+        }
+        if(typeof(searchBox) == 'boolean') {
+            this.searchBox = searchBox;
+            this.searchBoxContainerSelector = null;
+            this.searchBoxTimeout = 400;
+        }
+        else {
+            this.searchBox = searchBox.enable || true;
+            this.searchBoxContainerSelector = searchBox.container || null;
+            this.searchBoxTimeout = searchBox.timeout || 400;
+        }
+        this.colSelectFilter = colSelectFilter || [];
         this.searchTimeout = null;
         this.searchText = '';
-        this.sql_cols = sql_cols;
-        this.sql_from = sql_from;
-        this.sql_join = sql_join;
-        this.sql_where = sql_where;
         this.initComplete = initComplete;
         this.error = error;
         this.rowCreated = rowCreated;
         this.colFormat = colFormat;
+        this.colCreated = colCreated;
         this.page = 0;
         this.orderby = 0;
         this.order_direction = 'ASC';
-        this.columns_count = this.table.querySelectorAll('thead th')?.length;
-        if(!this.columns_count) return;
-        if(this.dataFile) this.getDataFromFile();
-        this.addHeaderSortListeners();
-        this.addColumnSelector();
-        this.addSearchBox(searchBoxContainer);
-        this.addPerPageSelector(perPageSelectorContainer);
+        this.colUniqueFiltersSelected = new Array();
+        this.loadTable();
     }
 
-    getDataFromFile = async () => {
-        const fd = new FormData();
-        fd.append('page', this.page);
-        fd.append('limit', this.perPage);
-        fd.append('orderby', this.orderby);
-        fd.append('order_direction', this.order_direction);
-        if(this.sql_cols) this.sql_cols.forEach(c => fd.append('sql_cols[]', c));
-        fd.append('sql_from', this.sql_from);
-        fd.append('sql_join', this.sql_join);
-        fd.append('sql_where', this.sql_where);
-        fd.append('search_text', this.searchText);
+    loadTable = async () => {
+        this.addHeaderSortListeners();
+        this.addcolVisibilitySelector();
+        if(this.ajaxUrl) await this.getDataFromFile(true);
+        this.addSearchBox();
+        this.addPerPageSelector();
+        this.addColumnSelectFilters();
+    }
 
-        const response = await fetch(this.dataFile, {
-            method: 'POST',
-            body: fd
-        });
-        if(!response) return;
+    getDataFromFile = async (firstLoad = false) => {
         try {
+            let response;
+            if(!this.ajaxMethod || this.ajaxMethod == 'POST') {
+                const fd = new FormData();
+                fd.append('page', this.page);
+                fd.append('limit', this.perPage);
+                fd.append('orderby', this.orderby);
+                fd.append('order_direction', this.order_direction);
+                fd.append('search_text', this.searchText);
+                if(firstLoad && this.colSelectFilter) this.colSelectFilter.forEach(s => fd.append('col_select_filter[]', s));
+                Object.entries(this.colUniqueFiltersSelected).forEach(([key, value]) => {
+                    fd.append('col_unique_filters_selected_keys[]', key);
+                    fd.append('col_unique_filters_selected_values[]', value);
+                });
+
+                response = await fetch(this.ajaxUrl, {
+                    method: 'POST',
+                    body: fd
+                });
+            }
+            else {
+                response = await fetch(this.ajaxUrl + '?' + new URLSearchParams({
+                    page: this.page,
+                    limit: this.perPage,
+                    orderby: this.orderby,
+                    order_direction: this.order_direction,
+                    searchText: this.searchText,
+                    col_select_filter: (firstLoad) ? this.colSelectFilter : []
+                }), {
+                    method: 'GET'
+                });
+            }
+            if(!response) throw 'No data recieved from request.';
             const json = await response.json();
-            this.totalRows = json[0].total_rows;
+            const data = (this.dataSrc && this.dataSrc.length > 0) ? json[0][this.dataSrc] : json[0];
+            this.totalRows = data.total_rows;
             if(!this.totalRows) this.noDataFound();
             else {
-                this.replaceRows(json[0].data);
+                this.replaceRows(data.data);
                 this.addPagination();
+                if(data.unique) {
+                    this.uniqueSelectsData = new Array();
+                    Object.entries(data.unique).forEach(([key, value]) => {
+                        this.uniqueSelectsData[key] = new Array();
+                        value.split('|').forEach(u => this.uniqueSelectsData[key].push(u));
+                    });
+                }
             }
-            this.initComplete({
-                data: json[0].data,
-                total_rows: json[0].total_rows,
+            if(this.initComplete && typeof(this.initComplete) == 'function') this.initComplete({
+                data: data.data,
+                total_rows: data.total_rows,
                 table: this.table
             });
         }
         catch(err) {
-            this.error(err);
+            if(this.error && typeof(this.error) == 'function') this.error(err);
+            else console.error(err);
         }
     }
 
@@ -111,14 +161,25 @@ class DataTable {
         return selectorsContainer;
     }
 
-    addColumnSelector = () => {
-        if(!this.columnSelector || !this.columnSelector.enable) return;
-        if(this.columnSelector.container) this.columnSelector.container = document.querySelector(this.columnSelector.container);
-        if(!this.columnSelector.container) this.columnSelector.container = this.getDefaultSelectorsContainer();
+    getDefaultUniqueSelectorsContainer = () => {
+        let uniqueSelectorsContainer = this.table.closest('.data-table-container').querySelector('.data-table-unique-selectors');
+        if(!uniqueSelectorsContainer) {
+            uniqueSelectorsContainer = document.createElement('div');
+            uniqueSelectorsContainer.classList.add('data-table-unique-selectors');
+            uniqueSelectorsContainer.setAttribute('for-data-table', this.table.getAttribute('id'));
+            this.table.before(uniqueSelectorsContainer);
+        }
+        return uniqueSelectorsContainer;
+    }
+
+    addcolVisibilitySelector = () => {
+        if(!this.colVisibilitySelector || !this.colVisibilitySelector.enable) return;
+        if(this.colVisibilitySelector.container) this.colVisibilitySelector.container = document.querySelector(this.colVisibilitySelector.container);
+        if(!this.colVisibilitySelector.container) this.colVisibilitySelector.container = this.getDefaultSelectorsContainer();
         const div = document.createElement('div');
         div.classList.add('columns-selector');
         const label = document.createElement('label');
-        label.innerText = this.columnSelector.name || 'Column Selector';
+        label.innerText = this.colVisibilitySelector.name || 'Column Selector';
         label.addEventListener('click', (e) => e.currentTarget.parentElement.classList.toggle('open'));
         const container = document.createElement('ul');
         const headers = this.table.querySelectorAll('thead th');
@@ -133,7 +194,7 @@ class DataTable {
         }
         div.append(label);
         div.append(container);
-        this.columnSelector.container.prepend(div);
+        this.colVisibilitySelector.container.prepend(div);
     }
 
     toggleSelectedColumn = (e) => {
@@ -177,9 +238,35 @@ class DataTable {
         }
     }
 
-    addPerPageSelector = (perPageSelectorContainer) => {
+    addColumnSelectFilters = () => {
+        if(this.colSelectFilter) {
+            this.uniqueSelectorsContainer = this.getDefaultUniqueSelectorsContainer();
+            let column, colIndex, select, option;
+            for(let i = 0; i < this.colSelectFilter.length; i++) {
+                column = this.colSelectFilter[i];
+                if(this.uniqueSelectsData[column] && this.uniqueSelectsData[column].length) {
+                    select = document.createElement('select');
+                    select.setAttribute('data-filter-column', column);
+                    option = document.createElement('option');
+                    option.innerHTML = 'Filter ' + column;
+                    option.value = '';
+                    select.append(option);
+                    this.uniqueSelectsData[column].forEach(o => {
+                        option = document.createElement('option');
+                        option.innerHTML = o;
+                        option.value = o;
+                        select.append(option);
+                    });
+                    select.addEventListener('change', this.uniqueSelectChangeEvent);
+                    this.uniqueSelectorsContainer.append(select);
+                }
+            };
+        }
+    }
+
+    addPerPageSelector = () => {
         if(!this.perPageSelector || !this.perPageOptions?.length) return;
-        if(perPageSelectorContainer) this.perPageSelectorContainer = document.querySelector(perPageSelectorContainer);
+        if(this.perPageSelectorContainerSelector) this.perPageSelectorContainer = document.querySelector(this.perPageSelectorContainerSelector);
         if(!this.perPageSelectorContainer) this.perPageSelectorContainer = this.getDefaultFiltersContainer();
         const div = document.createElement('div');
         div.classList.add('entries-filter');
@@ -200,9 +287,9 @@ class DataTable {
         this.perPageSelectorContainer.prepend(div);
     }
 
-    addSearchBox = (searchBoxContainer) => {
+    addSearchBox = () => {
         if(!this.searchBox) return;
-        if(searchBoxContainer) this.searchBoxContainer = document.querySelector(searchBoxContainer);
+        if(this.searchBoxContainerSelector) this.searchBoxContainer = document.querySelector(this.searchBoxContainerSelector);
         if(!this.searchBoxContainer) this.searchBoxContainer = this.getDefaultFiltersContainer();
         const div = document.createElement('div');
         div.classList.add('search-filter');
@@ -224,7 +311,7 @@ class DataTable {
 
     onSearchInput = (e) => {
         if(this.searchTimeout) clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(this.searchFilterTable, 500, e.currentTarget.value);
+        this.searchTimeout = setTimeout(this.searchFilterTable, this.searchBoxTimeout, e.currentTarget.value);
     }
 
     searchFilterTable = (text) => {
@@ -264,20 +351,21 @@ class DataTable {
         this.rows = new Array();
         const tbody = this.table.querySelector('tbody') || this.generateTBody();
         tbody.textContent = '';
-        let tr, td, i, a, cols = data[0].length, formated;
+        let tr, td, i, a, cols = data[0].length, altered;
         for(a = 0; a < this.perPage; a++) {
             tr = document.createElement('tr');
             tr.classList.add((a % 2 == 0) ? 'even' : 'odd');
             if(a >= data.length) continue;
             for(i = 0; i < cols; i++) {
                 td = document.createElement('td');
-                formated = this.colFormat(i, data[a]);
-                td.innerHTML = (formated == undefined) ? data[a][i] : formated;
-                if(this.columnSelector?.enable && this.columnSelected.findIndex(c => c == i) == -1) td.classList.add('hidden');
+                altered = (this.colFormat && typeof(this.colFormat) == 'function') ? this.colFormat(tr, i, data[a]) : null;
+                td.innerHTML = altered || data[a][i];
+                if(this.colVisibilitySelector?.enable && this.columnSelected.findIndex(c => c == i) == -1) td.classList.add('hidden');
                 tr.append(td);
+                if(this.colCreated && typeof(this.colCreated) == 'function') this.colCreated(tr, td, i, data[a]);
             }
             tbody.append(tr);
-            this.rowCreated(tr, data[a]);
+            if(this.rowCreated && typeof(this.rowCreated) == 'function') this.rowCreated(tr, data[a]);
         }
     }
 
@@ -490,6 +578,12 @@ class DataTable {
             this.orderby = index;
             this.order_direction = 'ASC';
         }
+        this.getDataFromFile();
+    }
+
+    uniqueSelectChangeEvent = (e) => {
+        if(!e.currentTarget.value.length) delete this.colUniqueFiltersSelected[e.currentTarget.getAttribute('data-filter-column')];
+        else this.colUniqueFiltersSelected[e.currentTarget.getAttribute('data-filter-column')] = e.currentTarget.value;
         this.getDataFromFile();
     }
 }
