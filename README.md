@@ -26,11 +26,7 @@ const newDataTable = new DataTable({
         enable: true,
         name: 'Select Columns'
     },
-    colSelectFilter: [
-        'name',
-        'email',
-        'sadasda'
-    ],
+    colSelectFilter: [ 1, 2 ],
     tooManyUseInput: false,
     // Format column before append
     colFormat: (tr, col_id, row_data) => {
